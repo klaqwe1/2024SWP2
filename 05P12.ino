@@ -1,21 +1,21 @@
-int ledPin = 7;
+#define PIN_LED 7
 
 void setup() {
-  pinMode(ledPin, OUTPUT); 
+  pinMode(PIN_LED, OUTPUT); 
 }
 
 void loop() {
-  digitalWrite(ledPin, HIGH);
+  digitalWrite(PIN_LED, HIGH);
   delay(1000);
   
   for (int i = 0; i < 5; i++) {
-    digitalWrite(ledPin, LOW);
+    digitalWrite(PIN_LED, LOW);
     delay(100);
-    digitalWrite(ledPin, HIGH);
+    digitalWrite(PIN_LED, HIGH);
     delay(100);
   }
   
-  digitalWrite(ledPin, LOW);
+  digitalWrite(PIN_LED, LOW);
   
   while (1) {}
 }
