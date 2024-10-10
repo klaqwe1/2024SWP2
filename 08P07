@@ -1,0 +1,67 @@
+#define PIN_LED 9
+#define PIN_TRIG 12
+#define PIN_ECHO 13
+#define SND_VEL 346.0
+#define INTERVAL 25
+#define PULSE_DURATION 10
+#define _DIST_MIN 100.0
+#define _DIST_MAX 300.0
+
+#define TIMEOUT (INTERVAL / 2 * 1000.0)
+#define SCALE (0.001 * 0.5 * SND_VEL)
+
+unsigned long lastSamplingTime = 0;
+float lastDistance = 0.0;
+
+void setup() {
+  pinMode(PIN_LED, OUTPUT);
+  pinMode(PIN_TRIG, OUTPUT);
+  pinMode(PIN_ECHO, INPUT);
+  digitalWrite(PIN_TRIG, LOW);
+  Serial.begin(57600);
+}
+
+void loop() {
+  if (millis() - lastSamplingTime < INTERVAL)
+    return;
+
+  float distance = measureDistance();
+  updateLED(distance);
+
+  Serial.print("Min: "); Serial.print(_DIST_MIN);
+  Serial.print(", Distance: "); Serial.print(lastDistance);
+  Serial.print(", Max: "); Serial.println(_DIST_MAX);
+
+  lastSamplingTime = millis();
+}
+
+float measureDistance() {
+  digitalWrite(PIN_TRIG, HIGH);
+  delayMicroseconds(PULSE_DURATION);
+  digitalWrite(PIN_TRIG, LOW);
+  
+  float measuredTime = pulseIn(PIN_ECHO, HIGH, TIMEOUT);
+  float calculatedDistance = measuredTime * SCALE;
+  
+  if (calculatedDistance < _DIST_MIN || calculatedDistance > _DIST_MAX) {
+    digitalWrite(PIN_LED, HIGH);
+    return lastDistance;
+  } else {
+    lastDistance = calculatedDistance;
+    return lastDistance;
+  }
+}
+
+void updateLED(float distance) {
+  int brightness = calculateLEDBrightness(distance);
+  analogWrite(PIN_LED, brightness);
+}
+
+int calculateLEDBrightness(float distance) {
+  if (distance < _DIST_MIN || distance > _DIST_MAX) {
+    return 0;
+  } else {
+    float offset = abs(distance - 200);
+    return int(255 - (100 - offset) * 2.55);
+  }
+}
